@@ -17,7 +17,7 @@
                 "displayName": "Repositories automation rule 1",
                 "order": 1,
                 "triggeringLogic": {
-                    "isEnabled": true,
+                    "isEnabled": false,
                     "expirationTimeUtc": null,
                     "triggersOn": "Incidents",
                     "triggersWhen": "Created",
