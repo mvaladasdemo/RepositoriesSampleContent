@@ -1,0 +1,75 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "workspace": {
+      "type": "String"
+    }
+  },
+  "resources": [
+    {
+      "id": "[concat(resourceId('Microsoft.OperationalInsights/workspaces/providers', parameters('workspace'), 'Microsoft.SecurityInsights'),'/alertRules/2fe46c07-98d3-4d99-a7d8-5893900a94ae')]",
+      "name": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/2fe46c07-98d3-4d99-a7d8-5893900a94ae')]",
+      "type": "Microsoft.OperationalInsights/workspaces/providers/alertRules",
+      "kind": "Scheduled",
+      "apiVersion": "2023-02-01-preview",
+      "properties": {
+        "displayName": "User with failed logons",
+        "description": "",
+        "alertDetailsOverride": null,
+        "customDetails": null,
+        "entityMappings": [
+          {
+            "entityType": "Account",
+            "fieldMappings": [
+              {
+                "columnName": "AccountCustomEntity",
+                "identifier": "FullName"
+              }
+            ]
+          },
+          {
+            "entityType": "IP",
+            "fieldMappings": [
+              {
+                "columnName": "IPCustomEntity",
+                "identifier": "Address"
+              }
+            ]
+          }
+        ],
+        "eventGroupingSettings": {
+          "aggregationKind": "SingleAlert"
+        },
+        "incidentConfiguration": {
+          "createIncident": true,
+          "groupingConfiguration": {
+            "enabled": true,
+            "groupByAlertDetails": null,
+            "groupByCustomDetails": null,
+            "groupByEntities": [
+              "Account"
+            ],
+            "lookbackDuration": "PT5H",
+            "matchingMethod": "Selected",
+            "reopenClosedIncident": false
+          }
+        },
+        "query": "SigninLogs\r\n| where Status.errorCode == 50126 // Invalid Username or password\r\n| project TimeGenerated, Status.failureReason, UserPrincipalName, Status.errorCode, UserId, IPAddress \r\n| sort by TimeGenerated desc\r\n| extend IPCustomEntity = IPAddress\r\n| extend AccountCustomEntity = UserPrincipalName",
+        "queryPeriod": "P1D",
+        "queryFrequency": "PT5M",
+        "sentinelEntitiesMappings": null,
+        "severity": "Medium",
+        "suppressionDuration": "PT5H",
+        "suppressionEnabled": false,
+        "tactics": [],
+        "techniques": [],
+        "templateVersion": null,
+        "triggerOperator": "GreaterThan",
+        "triggerThreshold": 2,
+        "alertRuleTemplateName": null,
+        "enabled": false
+      }
+    }
+  ]
+}
